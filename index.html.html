@@ -1,0 +1,1685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IB Physics IA Coach</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f0f4f8;
+    --surface: #ffffff;
+    --surface2: #f7fafc;
+    --border: #dde3ec;
+    --accent: #0098a0;
+    --accent2: #2563eb;
+    --accent3: #d97706;
+    --danger: #dc2626;
+    --text: #1a2535;
+    --text-muted: #5a6a80;
+    --text-dim: #b0bccf;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Background grid */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,152,160,0.07) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,152,160,0.07) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .app { position: relative; z-index: 1; max-width: 1100px; margin: 0 auto; padding: 20px; }
+
+  /* Header */
+  header {
+    text-align: center;
+    padding: 40px 20px 30px;
+    position: relative;
+  }
+  header::after {
+    content: '';
+    display: block;
+    width: 80px;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    margin: 20px auto 0;
+    border-radius: 2px;
+  }
+  .logo-tag {
+    display: inline-block;
+    font-family: 'Syne', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    padding: 4px 12px;
+    border-radius: 20px;
+    margin-bottom: 16px;
+  }
+  h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(28px, 5vw, 48px);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -1px;
+  }
+  h1 span { color: var(--accent); }
+  .subtitle {
+    color: var(--text-muted);
+    font-size: 15px;
+    margin-top: 10px;
+    font-weight: 300;
+  }
+
+  /* Nav tabs */
+  .nav {
+    display: flex;
+    gap: 6px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 6px;
+    margin: 28px 0 24px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .nav::-webkit-scrollbar { display: none; }
+  .nav-btn {
+    flex: 1;
+    min-width: 130px;
+    padding: 10px 14px;
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    font-family: 'Syne', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.25s;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+  }
+  .nav-btn:hover { color: var(--text); background: var(--surface2); }
+  .nav-btn.active {
+    background: linear-gradient(135deg, var(--accent), #006e75);
+    color: #ffffff;
+    font-weight: 700;
+  }
+  .nav-btn .icon { font-size: 15px; }
+
+  /* Panels */
+  .panel { display: none; animation: fadeIn 0.3s ease; }
+  .panel.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* Cards */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 20px;
+    transition: border-color 0.2s;
+  }
+  .card:hover { border-color: var(--text-dim); }
+  .card-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* ===== TAB 1: TOPIC EXPLORER ===== */
+  .topic-filters {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+  }
+  .filter-btn {
+    padding: 7px 16px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-muted);
+    border-radius: 20px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .filter-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .filter-btn.active { background: var(--accent); border-color: var(--accent); color: #ffffff; font-weight: 500; }
+
+  .topics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 14px;
+  }
+  .topic-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px;
+    cursor: pointer;
+    transition: all 0.25s;
+    position: relative;
+    overflow: hidden;
+  }
+  .topic-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 3px; height: 100%;
+    background: var(--accent);
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .topic-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .topic-card:hover::before { opacity: 1; }
+  .topic-card.selected { border-color: var(--accent); background: rgba(0,152,160,0.06); }
+  .topic-card.selected::before { opacity: 1; }
+  .topic-tag {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 4px;
+    margin-bottom: 10px;
+  }
+  .topic-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 6px;
+    line-height: 1.3;
+  }
+  .topic-rq {
+    font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.5;
+    font-style: italic;
+  }
+  .topic-meta {
+    display: flex;
+    gap: 10px;
+    margin-top: 12px;
+    flex-wrap: wrap;
+  }
+  .meta-pill {
+    font-size: 10px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-weight: 500;
+  }
+  .diff-easy { background: rgba(0,152,160,0.12); color: #006e75; }
+  .diff-medium { background: rgba(37,99,235,0.1); color: #1d4ed8; }
+  .diff-hard { background: rgba(217,119,6,0.12); color: #92560a; }
+
+  /* Detail panel */
+  .topic-detail {
+    background: var(--surface2);
+    border: 1px solid var(--accent);
+    border-radius: 16px;
+    padding: 28px;
+    margin-top: 20px;
+    display: none;
+    animation: fadeIn 0.3s ease;
+  }
+  .topic-detail.open { display: block; }
+  .detail-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 20px;
+  }
+  .detail-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 20px;
+    font-weight: 800;
+  }
+  .close-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 16px;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+    flex-shrink: 0;
+  }
+  .close-btn:hover { background: var(--danger); color: white; border-color: var(--danger); }
+  .detail-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 16px;
+  }
+  @media(max-width: 600px) { .detail-grid { grid-template-columns: 1fr; } }
+  .detail-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+  }
+  .detail-box-title {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--accent2);
+    margin-bottom: 10px;
+  }
+  .detail-box ul {
+    list-style: none;
+    padding: 0;
+  }
+  .detail-box ul li {
+    font-size: 13px;
+    color: var(--text-muted);
+    padding: 4px 0;
+    padding-left: 14px;
+    position: relative;
+    line-height: 1.5;
+  }
+  .detail-box ul li::before {
+    content: '→';
+    position: absolute;
+    left: 0;
+    color: var(--accent);
+    font-size: 10px;
+    top: 5px;
+  }
+  .rq-box {
+    background: rgba(0,152,160,0.06);
+    border: 1px solid rgba(0,152,160,0.25);
+    border-radius: 10px;
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+  .rq-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--accent); margin-bottom: 6px; }
+  .rq-text { font-size: 14px; font-style: italic; line-height: 1.6; }
+
+  /* ===== TAB 2: RQ BUILDER ===== */
+  .rq-builder { }
+  .form-row { margin-bottom: 20px; }
+  label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+  }
+  input[type="text"], select, textarea {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    transition: border-color 0.2s;
+    outline: none;
+  }
+  input[type="text"]:focus, select:focus, textarea:focus { border-color: var(--accent); }
+  select option { background: var(--surface); color: var(--text); }
+  textarea { resize: vertical; min-height: 80px; }
+
+  .rq-preview {
+    background: linear-gradient(135deg, rgba(0,152,160,0.07), rgba(37,99,235,0.07));
+    border: 1px solid rgba(0,152,160,0.25);
+    border-radius: 12px;
+    padding: 20px;
+    margin: 20px 0;
+  }
+  .rq-preview-label { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--accent); margin-bottom: 10px; }
+  .rq-preview-text {
+    font-family: 'Syne', sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1.6;
+    min-height: 28px;
+  }
+  .rq-preview-text .placeholder { color: var(--text-dim); font-style: italic; font-weight: 400; font-family: 'DM Sans', sans-serif; font-size: 14px; }
+
+  .feedback-list { margin-top: 14px; }
+  .feedback-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    margin-bottom: 8px;
+  }
+  .feedback-ok { background: rgba(0,152,160,0.08); border: 1px solid rgba(0,152,160,0.25); color: #006e75; }
+  .feedback-warn { background: rgba(217,119,6,0.08); border: 1px solid rgba(217,119,6,0.25); color: #92560a; }
+  .feedback-error { background: rgba(220,38,38,0.08); border: 1px solid rgba(220,38,38,0.2); color: #991b1b; }
+
+  /* ===== TAB 3: PLANNER ===== */
+  .planner-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  @media(max-width: 700px) { .planner-grid { grid-template-columns: 1fr; } }
+
+  .var-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+  .var-table th {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    padding: 8px 10px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+  .var-table td { padding: 6px 10px; font-size: 13px; }
+  .var-table tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+
+  .steps-list { counter-reset: steps; }
+  .step-item {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .step-item:last-child { border-bottom: none; }
+  .step-num {
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #ffffff;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 12px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .step-text { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
+  .step-text strong { color: var(--text); display: block; margin-bottom: 3px; }
+
+  /* ===== TAB 4: ANALYSIS GUIDE ===== */
+  .analysis-selector {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+  .analysis-btn {
+    padding: 10px 18px;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    color: var(--text-muted);
+    border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .analysis-btn:hover { border-color: var(--accent2); color: var(--accent2); }
+  .analysis-btn.active { background: rgba(79,142,247,0.12); border-color: var(--accent2); color: var(--accent2); font-weight: 600; }
+
+  .analysis-content { display: none; animation: fadeIn 0.3s ease; }
+  .analysis-content.active { display: block; }
+
+  .graph-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 14px;
+  }
+  .graph-type { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 15px; margin-bottom: 8px; color: #92560a; }
+  .graph-desc { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
+
+  .uncertainty-steps { }
+  .u-step {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .u-step:last-child { border-bottom: none; }
+  .u-icon { font-size: 20px; flex-shrink: 0; width: 36px; text-align: center; }
+  .u-content h4 { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700; margin-bottom: 5px; }
+  .u-content p { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
+  .formula-box {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 14px;
+    margin-top: 8px;
+    font-family: monospace;
+    font-size: 13px;
+    color: #92560a;
+  }
+
+  /* ===== TAB 5: CRITERIA ===== */
+  .criteria-accordion { }
+  .criterion {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    margin-bottom: 12px;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+  .criterion:hover { border-color: var(--text-dim); }
+  .criterion-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 18px 20px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .criterion-left { display: flex; align-items: center; gap: 14px; }
+  .criterion-code {
+    font-family: 'Syne', sans-serif;
+    font-size: 18px;
+    font-weight: 800;
+    width: 36px;
+    text-align: center;
+  }
+  .criterion-name {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+  }
+  .criterion-marks {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+  .criterion-score { text-align: right; }
+  .score-display {
+    font-family: 'Syne', sans-serif;
+    font-size: 20px;
+    font-weight: 800;
+  }
+  .criterion-chevron { font-size: 12px; color: var(--text-dim); margin-left: 10px; transition: transform 0.3s; }
+  .criterion.open .criterion-chevron { transform: rotate(180deg); }
+  .criterion-body {
+    display: none;
+    padding: 0 20px 20px;
+  }
+  .criterion.open .criterion-body { display: block; animation: fadeIn 0.3s ease; }
+
+  .score-selector {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+  .score-btn {
+    width: 40px; height: 40px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text-muted);
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    transition: all 0.2s;
+  }
+  .score-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .score-btn.selected { background: var(--accent); border-color: var(--accent); color: #ffffff; }
+
+  .band-desc {
+    background: var(--surface);
+    border-left: 3px solid var(--accent2);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.6;
+    margin-top: 10px;
+    display: none;
+  }
+  .band-desc.show { display: block; }
+
+  .checklist { margin-top: 14px; }
+  .check-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    cursor: pointer;
+  }
+  .check-item:last-child { border-bottom: none; }
+  .check-box {
+    width: 18px; height: 18px;
+    border: 1.5px solid var(--border);
+    border-radius: 4px;
+    flex-shrink: 0;
+    margin-top: 1px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px;
+    transition: all 0.2s;
+  }
+  .check-item.checked .check-box { background: var(--accent); border-color: var(--accent); color: #ffffff; font-weight: 700; }
+  .check-text { font-size: 13px; color: var(--text-muted); line-height: 1.5; }
+  .check-item.checked .check-text { color: var(--text); }
+
+  .total-score-bar {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+  .score-circle {
+    width: 80px; height: 80px;
+    border-radius: 50%;
+    background: conic-gradient(var(--accent) var(--pct, 0%), var(--surface2) 0%);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    position: relative;
+    transition: all 0.5s;
+  }
+  .score-circle::before {
+    content: '';
+    position: absolute;
+    width: 60px; height: 60px;
+    background: var(--surface);
+    border-radius: 50%;
+  }
+  .score-inner {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+  }
+  .score-num { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 800; line-height: 1; }
+  .score-denom { font-size: 10px; color: var(--text-muted); }
+  .score-info h3 { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+  .score-info p { font-size: 13px; color: var(--text-muted); }
+  .grade-bar {
+    flex: 1;
+    min-width: 200px;
+    height: 8px;
+    background: var(--surface2);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-top: 8px;
+  }
+  .grade-fill {
+    height: 100%;
+    border-radius: 4px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    transition: width 0.5s ease;
+  }
+
+  /* Shared helpers */
+  .section-intro { font-size: 14px; color: var(--text-muted); margin-bottom: 20px; line-height: 1.7; }
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media(max-width: 600px) { .two-col { grid-template-columns: 1fr; } }
+
+  .tip-box {
+    background: rgba(217,119,6,0.07);
+    border: 1px solid rgba(217,119,6,0.25);
+    border-radius: 10px;
+    padding: 14px 18px;
+    font-size: 13px;
+    color: #92560a;
+    line-height: 1.6;
+    margin-top: 14px;
+  }
+  .tip-box::before { content: '💡 '; }
+
+  .search-bar {
+    position: relative;
+    margin-bottom: 16px;
+  }
+  .search-bar input {
+    padding-left: 40px;
+  }
+  .search-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-dim);
+    font-size: 16px;
+    pointer-events: none;
+  }
+
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="logo-tag">IB Physics SL/HL</div>
+    <h1>IA <span>Coach</span></h1>
+    <p class="subtitle">Your complete guide from idea → polished investigation</p>
+  </header>
+
+  <nav class="nav">
+    <button class="nav-btn active" onclick="switchTab('topics')"><span class="icon">🔭</span> Topic Explorer</button>
+    <button class="nav-btn" onclick="switchTab('rq')"><span class="icon">❓</span> RQ Builder</button>
+    <button class="nav-btn" onclick="switchTab('planner')"><span class="icon">📋</span> Method Planner</button>
+    <button class="nav-btn" onclick="switchTab('analysis')"><span class="icon">📊</span> Analysis Guide</button>
+    <button class="nav-btn" onclick="switchTab('criteria')"><span class="icon">🏆</span> IB Criteria</button>
+  </nav>
+
+  <!-- ============================================================ -->
+  <!-- TAB 1: TOPIC EXPLORER -->
+  <!-- ============================================================ -->
+  <div class="panel active" id="panel-topics">
+    <p class="section-intro">
+      Browse 20+ real IA topic examples sorted by IB theme. Click any card to see a full breakdown — sample RQ, variables, equipment, and examiner tips.
+    </p>
+
+    <div class="search-bar">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="topic-search" placeholder="Search topics, e.g. pendulum, optics, thermistor..." oninput="filterTopics()">
+    </div>
+
+    <div class="topic-filters">
+      <button class="filter-btn active" onclick="filterCategory('all', this)">All Topics</button>
+      <button class="filter-btn" onclick="filterCategory('A', this)">A — Space, Time & Motion</button>
+      <button class="filter-btn" onclick="filterCategory('B', this)">B — The Particulate Nature of Matter</button>
+      <button class="filter-btn" onclick="filterCategory('C', this)">C — Wave Behaviour</button>
+      <button class="filter-btn" onclick="filterCategory('D', this)">D — Fields</button>
+      <button class="filter-btn" onclick="filterCategory('E', this)">E — Nuclear & Quantum</button>
+    </div>
+
+    <div class="topics-grid" id="topics-grid"></div>
+    <div class="topic-detail" id="topic-detail"></div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- TAB 2: RQ BUILDER -->
+  <!-- ============================================================ -->
+  <div class="panel" id="panel-rq">
+    <p class="section-intro">Build a well-structured, examinable research question step by step. A good RQ is specific, measurable, and clearly names both variables.</p>
+
+    <div class="card">
+      <div class="card-title">⚙️ Step 1 — Define Your Variables</div>
+
+      <div class="form-row">
+        <label>Independent Variable (what you change)</label>
+        <input type="text" id="iv" placeholder="e.g. length of pendulum string (m)" oninput="buildRQ()">
+      </div>
+      <div class="form-row">
+        <label>Dependent Variable (what you measure)</label>
+        <input type="text" id="dv" placeholder="e.g. period of oscillation (s)" oninput="buildRQ()">
+      </div>
+      <div class="form-row">
+        <label>How will you measure the dependent variable?</label>
+        <input type="text" id="measurement" placeholder="e.g. using a stopwatch, timing 10 oscillations" oninput="buildRQ()">
+      </div>
+      <div class="form-row">
+        <label>Key Controlled Variables (list up to 3)</label>
+        <input type="text" id="cv1" placeholder="e.g. mass of bob" oninput="buildRQ()">
+        <input type="text" id="cv2" placeholder="e.g. amplitude of swing" style="margin-top:8px" oninput="buildRQ()">
+        <input type="text" id="cv3" placeholder="e.g. temperature of room" style="margin-top:8px" oninput="buildRQ()">
+      </div>
+    </div>
+
+    <div class="rq-preview">
+      <div class="rq-preview-label">📝 Your Research Question</div>
+      <div class="rq-preview-text" id="rq-output">
+        <span class="placeholder">Fill in the fields above to generate your research question…</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">✅ RQ Quality Feedback</div>
+      <div class="feedback-list" id="rq-feedback">
+        <div class="feedback-item feedback-warn">⚠️ Start filling in your variables above to get feedback.</div>
+      </div>
+    </div>
+
+    <div class="tip-box">
+      A strong IB IA research question always specifies the independent variable, dependent variable, and the system being investigated. Avoid vague words like "affect" or "impact" — use "How does X vary with Y?" or "What is the relationship between X and Y?"
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- TAB 3: METHOD PLANNER -->
+  <!-- ============================================================ -->
+  <div class="panel" id="panel-planner">
+    <p class="section-intro">Plan a rigorous experimental method. Use this tab to organise variables, equipment, and procedure steps that will impress the examiner.</p>
+
+    <div class="planner-grid">
+      <div class="card">
+        <div class="card-title">🔬 Variables Table</div>
+        <table class="var-table">
+          <thead>
+            <tr>
+              <th>Type</th>
+              <th>Variable</th>
+              <th>Unit / Range</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="color:var(--accent);font-weight:600">Independent</td>
+              <td><input type="text" id="p-iv" placeholder="e.g. mass of load" style="padding:6px;font-size:12px"></td>
+              <td><input type="text" id="p-iv-range" placeholder="e.g. 100–600 g" style="padding:6px;font-size:12px"></td>
+            </tr>
+            <tr>
+              <td style="color:var(--accent2);font-weight:600">Dependent</td>
+              <td><input type="text" id="p-dv" placeholder="e.g. extension of spring" style="padding:6px;font-size:12px"></td>
+              <td><input type="text" id="p-dv-unit" placeholder="e.g. cm ± 0.1 cm" style="padding:6px;font-size:12px"></td>
+            </tr>
+            <tr>
+              <td style="color:var(--accent3);font-weight:600">Controlled 1</td>
+              <td><input type="text" id="p-cv1" placeholder="e.g. spring constant" style="padding:6px;font-size:12px"></td>
+              <td><input type="text" id="p-cv1-how" placeholder="e.g. same spring used" style="padding:6px;font-size:12px"></td>
+            </tr>
+            <tr>
+              <td style="color:var(--accent3);font-weight:600">Controlled 2</td>
+              <td><input type="text" id="p-cv2" placeholder="e.g. temperature" style="padding:6px;font-size:12px"></td>
+              <td><input type="text" id="p-cv2-how" placeholder="e.g. lab conditions kept constant" style="padding:6px;font-size:12px"></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <div class="card-title">🛠️ Equipment List</div>
+        <textarea id="equipment" placeholder="List your equipment, one per line:&#10;• Retort stand and clamp&#10;• Spring (k ≈ 25 N/m)&#10;• Set of 100g masses&#10;• Ruler (± 0.1 cm)&#10;• Digital balance&#10;• Safety goggles" style="min-height:200px"></textarea>
+        <div class="tip-box" style="margin-top:12px">Always include the uncertainty (± value) for every measuring instrument.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📝 Procedure Steps</div>
+      <p style="font-size:13px; color:var(--text-muted); margin-bottom:16px">A good IB procedure allows another student to replicate your experiment. Be specific with numbers. Include at least 5 values of your independent variable and ≥3 repeats each.</p>
+      <div class="steps-list" id="steps-list">
+        <div class="step-item">
+          <div class="step-num">1</div>
+          <div style="flex:1"><input type="text" id="step1" placeholder="Set up the retort stand and attach the spring to the clamp at the top."></div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">2</div>
+          <div style="flex:1"><input type="text" id="step2" placeholder="Hang a 100 g mass from the spring and measure the extension using a ruler."></div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">3</div>
+          <div style="flex:1"><input type="text" id="step3" placeholder="Repeat step 2 for masses of 200, 300, 400, 500, 600 g."></div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">4</div>
+          <div style="flex:1"><input type="text" id="step4" placeholder="Repeat all trials 3 times and record in a data table."></div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">5</div>
+          <div style="flex:1"><input type="text" id="step5" placeholder="Calculate mean extension and plot Force vs. Extension graph."></div>
+        </div>
+      </div>
+      <button onclick="addStep()" style="margin-top:14px; background:transparent; border:1px dashed var(--border); color:var(--text-muted); padding:10px 20px; border-radius:8px; cursor:pointer; font-family:'DM Sans',sans-serif; font-size:13px; transition:all 0.2s;" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">+ Add Step</button>
+    </div>
+
+    <div class="card">
+      <div class="card-title">⚠️ Safety & Ethics Notes</div>
+      <div class="two-col">
+        <div>
+          <label>Safety Precautions</label>
+          <textarea id="safety" placeholder="e.g. Wear safety goggles when using masses. Ensure retort stand is clamped securely to bench. Keep masses away from feet."></textarea>
+        </div>
+        <div>
+          <label>Ethical / Environmental Considerations</label>
+          <textarea id="ethics" placeholder="e.g. No living organisms are used. Dispose of any chemicals as per lab regulations. Minimise energy waste during trials."></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- TAB 4: ANALYSIS GUIDE -->
+  <!-- ============================================================ -->
+  <div class="panel" id="panel-analysis">
+    <p class="section-intro">Choose the analysis topic you need help with. Each section explains exactly what IB examiners expect to see.</p>
+
+    <div class="analysis-selector">
+      <button class="analysis-btn active" onclick="switchAnalysis('graphs', this)">📈 Graphs & Linearisation</button>
+      <button class="analysis-btn" onclick="switchAnalysis('uncertainty', this)">±  Uncertainties</button>
+      <button class="analysis-btn" onclick="switchAnalysis('stats', this)">📐 Statistical Treatment</button>
+      <button class="analysis-btn" onclick="switchAnalysis('eval', this)">🔎 Evaluation Tips</button>
+    </div>
+
+    <!-- Graphs -->
+    <div class="analysis-content active" id="analysis-graphs">
+      <div class="card-title" style="margin-bottom:16px">📈 Choosing & Linearising Your Graph</div>
+      <div class="graph-card">
+        <div class="graph-type">Linear Graph (y = mx + c)</div>
+        <div class="graph-desc">Use when your variables have a direct (linear) relationship. Plot DV on y-axis, IV on x-axis. The gradient gives you the physical constant. Example: F vs. x for Hooke's Law → gradient = spring constant k.</div>
+      </div>
+      <div class="graph-card">
+        <div class="graph-type">Linearisation: y = ax²  →  y vs. x²</div>
+        <div class="graph-desc">If theory predicts y ∝ x², plot y against x² to get a straight line. Example: Period² vs. length for a pendulum (T² = 4π²L/g) — gradient = 4π²/g, allowing you to calculate g.</div>
+      </div>
+      <div class="graph-card">
+        <div class="graph-type">Linearisation: y = a/x  →  y vs. 1/x</div>
+        <div class="graph-desc">If y is inversely proportional to x, plot y against 1/x. Example: Pressure vs. 1/Volume for Boyle's Law → straight line through origin confirms the relationship.</div>
+      </div>
+      <div class="graph-card">
+        <div class="graph-type">Linearisation: y = ae^(bx)  →  ln y vs. x</div>
+        <div class="graph-desc">Take the natural log of the exponential variable. Example: Radioactive decay N = N₀e^(−λt) → plot ln N vs. t → gradient = −λ (decay constant).</div>
+      </div>
+      <div class="tip-box">IB examiners expect a linearised graph with error bars, a best-fit line, and a gradient calculation with units. Always quote your gradient to 3 significant figures.</div>
+    </div>
+
+    <!-- Uncertainties -->
+    <div class="analysis-content" id="analysis-uncertainty">
+      <div class="card-title" style="margin-bottom:16px">± Uncertainty Analysis</div>
+      <div class="u-step">
+        <div class="u-icon">📏</div>
+        <div class="u-content">
+          <h4>1. Instrument Uncertainty (Absolute)</h4>
+          <p>For analogue instruments: ½ the smallest division. For digital instruments: ± the last digit.</p>
+          <div class="formula-box">e.g. Ruler smallest division = 1 mm → Δx = ± 0.5 mm</div>
+        </div>
+      </div>
+      <div class="u-step">
+        <div class="u-icon">🔁</div>
+        <div class="u-content">
+          <h4>2. Uncertainty from Repeats (Random)</h4>
+          <p>Take at least 3 repeats. Use ½ the range (max − min) as the uncertainty.</p>
+          <div class="formula-box">Δx = (x_max − x_min) / 2</div>
+        </div>
+      </div>
+      <div class="u-step">
+        <div class="u-icon">➕</div>
+        <div class="u-content">
+          <h4>3. Adding / Subtracting Values</h4>
+          <p>Add the absolute uncertainties.</p>
+          <div class="formula-box">z = a + b  →  Δz = Δa + Δb</div>
+        </div>
+      </div>
+      <div class="u-step">
+        <div class="u-icon">✖️</div>
+        <div class="u-content">
+          <h4>4. Multiplying / Dividing Values</h4>
+          <p>Add the fractional (percentage) uncertainties.</p>
+          <div class="formula-box">z = a × b  →  Δz/z = Δa/a + Δb/b</div>
+        </div>
+      </div>
+      <div class="u-step">
+        <div class="u-icon">🔺</div>
+        <div class="u-content">
+          <h4>5. Powers</h4>
+          <p>Multiply the fractional uncertainty by the power.</p>
+          <div class="formula-box">z = aⁿ  →  Δz/z = n × (Δa/a)</div>
+        </div>
+      </div>
+      <div class="u-step">
+        <div class="u-icon">📊</div>
+        <div class="u-content">
+          <h4>6. Uncertainty from Graph Gradient</h4>
+          <p>Draw the steepest and shallowest lines through the error bars. The uncertainty in the gradient is half the difference between their gradients.</p>
+          <div class="formula-box">Δm = (m_max − m_min) / 2</div>
+        </div>
+      </div>
+      <div class="tip-box">Quote all uncertainties to 1 significant figure. Quote the corresponding measurement to the same decimal place.</div>
+    </div>
+
+    <!-- Stats -->
+    <div class="analysis-content" id="analysis-stats">
+      <div class="card-title" style="margin-bottom:16px">📐 Statistical Treatment</div>
+      <div class="graph-card">
+        <div class="graph-type">Mean & Standard Deviation</div>
+        <div class="graph-desc">Always calculate the mean of repeated measurements. If you have 5+ repeats, you can quote the standard deviation as a measure of spread. For IB, showing mean ± SD demonstrates statistical thinking.</div>
+      </div>
+      <div class="graph-card">
+        <div class="graph-type">Percentage Uncertainty</div>
+        <div class="graph-desc">% uncertainty = (absolute uncertainty / measured value) × 100. Use this to compare the significance of different sources of uncertainty. Any source &gt; 5% deserves discussion in your evaluation.</div>
+      </div>
+      <div class="graph-card">
+        <div class="graph-type">Comparing with Literature Value</div>
+        <div class="graph-desc">Calculate % discrepancy = |experimental − literature| / literature × 100%. Then assess whether your uncertainty range overlaps with the literature value. If it does, systematic error may be small; if it doesn't, discuss systematic sources.</div>
+      </div>
+      <div class="graph-card">
+        <div class="graph-type">Pearson Correlation Coefficient (r)</div>
+        <div class="graph-desc">For HL students: r measures how well your data fits a linear trend (r = 1 means perfect positive correlation). Use a spreadsheet to calculate. Quote r² (coefficient of determination) to show how much variation your model explains.</div>
+      </div>
+      <div class="tip-box">You do NOT need advanced statistics for IB IA. Clear tables, a linearised graph with error bars, and a thoughtful uncertainty analysis are enough for full marks in Analysis.</div>
+    </div>
+
+    <!-- Eval -->
+    <div class="analysis-content" id="analysis-eval">
+      <div class="card-title" style="margin-bottom:16px">🔎 Evaluation: What Examiners Want</div>
+      <div class="graph-card">
+        <div class="graph-type">State a Conclusion with Evidence</div>
+        <div class="graph-desc">Link your result directly to your RQ. State whether the data supports or contradicts the hypothesis, and quote numerical evidence. Don't just say "the graph shows a straight line" — state what the gradient means physically.</div>
+      </div>
+      <div class="graph-card">
+        <div class="graph-type">Identify Systematic vs. Random Errors</div>
+        <div class="graph-desc"><strong>Systematic errors</strong> shift all values in one direction (e.g. a zero error on a ruler). They show up as a non-zero y-intercept or a constant offset. <strong>Random errors</strong> cause scatter around the best-fit line. Distinguish between them — examiners value this distinction highly.</div>
+      </div>
+      <div class="graph-card">
+        <div class="graph-type">Suggest Specific Improvements</div>
+        <div class="graph-desc">Generic suggestions (e.g. "do more repeats") score 0. Specific ones score marks: "Replace the manual stopwatch with a photogate timer to reduce human reaction time uncertainty from ±0.2 s to ±0.001 s."</div>
+      </div>
+      <div class="graph-card">
+        <div class="graph-type">Extensions</div>
+        <div class="graph-desc">Suggest a genuinely new investigation that builds on yours — different variable, different range, or different physical setting. Show you understand the broader physics context of your work.</div>
+      </div>
+      <div class="tip-box">The Evaluation criterion is where most students lose marks. Spend as much time on it as on data collection.</div>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- TAB 5: IB CRITERIA -->
+  <!-- ============================================================ -->
+  <div class="panel" id="panel-criteria">
+    <p class="section-intro">Self-assess your IA against the official IB rubric (24 marks total). Click each criterion to expand, rate yourself, and check off specific requirements.</p>
+
+    <div class="total-score-bar" id="score-bar">
+      <div class="score-circle" id="score-circle" style="--pct: 0%">
+        <div class="score-inner">
+          <div class="score-num" id="total-score">0</div>
+          <div class="score-denom">/ 24</div>
+        </div>
+      </div>
+      <div class="score-info">
+        <h3 id="grade-label">—</h3>
+        <p id="grade-desc">Select scores below to see your predicted grade</p>
+        <div class="grade-bar"><div class="grade-fill" id="grade-fill" style="width:0%"></div></div>
+      </div>
+    </div>
+
+    <div class="criteria-accordion" id="criteria-accordion"></div>
+  </div>
+
+</div><!-- end .app -->
+
+<script>
+// ========================================================
+// DATA
+// ========================================================
+
+const topics = [
+  {
+    id: 1, category: 'A', tag: 'A — Mechanics',
+    title: 'Pendulum & Gravity',
+    rq: 'How does the length of a simple pendulum affect its period of oscillation?',
+    difficulty: 'easy',
+    ibtopic: 'SHM (A.5)',
+    iv: 'Length of pendulum string (L) — 20 to 100 cm',
+    dv: 'Period of oscillation (T) — timed using stopwatch (10 swings)',
+    cv: ['Mass of bob', 'Amplitude (< 15°)', 'Temperature'],
+    equipment: ['Retort stand & clamp', 'String', 'Metal bob (50 g)', 'Ruler (±0.1 cm)', 'Stopwatch (±0.01 s)', 'Protractor'],
+    graph: 'Plot T² vs. L → straight line; gradient = 4π²/g → find g',
+    tip: 'Use at least 7 values of L. Time 10 swings and divide to reduce timing uncertainty.'
+  },
+  {
+    id: 2, category: 'A', tag: 'A — Mechanics',
+    title: 'Projectile Motion — Launch Angle',
+    rq: 'How does the launch angle of a projectile affect its horizontal range?',
+    difficulty: 'medium',
+    ibtopic: 'Kinematics (A.1)',
+    iv: 'Launch angle θ — 10° to 80°',
+    dv: 'Horizontal range R (m) — measured with tape measure',
+    cv: ['Launch speed (same spring compression)', 'Mass of projectile', 'Height of launch'],
+    equipment: ['Ramp / spring launcher', 'Protractor', 'Tape measure (±0.5 cm)', 'Carbon paper', 'Plumb line'],
+    graph: 'Plot R vs. θ — expect maximum at 45°. Compare with theoretical R = v₀²sin2θ/g',
+    tip: 'Use carbon paper to mark landing points. Repeat 5 times per angle for reliable mean.'
+  },
+  {
+    id: 3, category: 'A', tag: 'A — Mechanics',
+    title: "Hooke's Law — Spring Constant",
+    rq: "How does the applied force affect the extension of a spring?",
+    difficulty: 'easy',
+    ibtopic: 'Mechanics (A.2)',
+    iv: 'Applied force F (N) — 1 to 6 N in 1 N steps',
+    dv: 'Extension of spring x (cm) — measured with ruler',
+    cv: ['Type of spring', 'Temperature', 'Initial position'],
+    equipment: ['Spring', 'Retort stand', '100 g masses', 'Ruler (±0.1 cm)', 'Balance'],
+    graph: 'Plot F vs. x → straight line; gradient = spring constant k (N/m)',
+    tip: 'Note the elastic limit — do not exceed it. Approach from one direction to avoid hysteresis.'
+  },
+  {
+    id: 4, category: 'A', tag: 'A — Energy',
+    title: 'Roller Coaster — Energy Conservation',
+    rq: "How does the release height of a ball on a curved track affect its speed at the bottom?",
+    difficulty: 'medium',
+    ibtopic: 'Energy (A.3)',
+    iv: 'Release height h (m) — 5 to 40 cm',
+    dv: 'Speed at bottom v (m/s) — using light gate or video analysis',
+    cv: ['Mass of ball', 'Track shape', 'Surface friction (same track)'],
+    equipment: ['Curved track', 'Steel ball', 'Light gate + timer', 'Ruler', 'Retort stand'],
+    graph: 'Plot v² vs. h → straight line through origin; gradient = 2g (if frictionless)',
+    tip: "Compare experimental gradient with 2g = 19.6 m/s². Difference indicates energy lost to friction."
+  },
+  {
+    id: 5, category: 'B', tag: 'B — Thermal',
+    title: 'Thermistor Resistance vs. Temperature',
+    rq: "How does temperature affect the resistance of an NTC thermistor?",
+    difficulty: 'medium',
+    ibtopic: 'Thermal (B.1)',
+    iv: 'Temperature T (°C) — 20 to 80 °C',
+    dv: 'Resistance R (Ω) — measured with multimeter',
+    cv: ['Voltage supply', 'Type of thermistor', 'Depth of immersion'],
+    equipment: ['NTC thermistor', 'Water bath', 'Thermometer (±1°C)', 'Multimeter', 'Beaker'],
+    graph: 'Plot ln R vs. 1/T (Kelvin) — should be linear; this is the Steinhart-Hart relationship',
+    tip: 'This is an excellent topic for linearisation. Convert °C to K before plotting 1/T.'
+  },
+  {
+    id: 6, category: 'B', tag: 'B — Thermal',
+    title: "Newton's Law of Cooling",
+    rq: "How does the initial temperature of hot water affect its rate of cooling?",
+    difficulty: 'easy',
+    ibtopic: 'Thermal (B.1)',
+    iv: 'Initial temperature T₀ (°C) — 40 to 90 °C',
+    dv: 'Rate of cooling (°C/min) — from temperature-time graph',
+    cv: ['Volume of water', 'Type of container', 'Room temperature'],
+    equipment: ['Calorimeter', 'Digital thermometer', 'Stopwatch', 'Kettle', 'Insulating mat'],
+    graph: 'Plot ln(T − T_room) vs. time → straight line; gradient = −k (cooling constant)',
+    tip: 'Record temperature every 30 s for 10 minutes. Linearisation using ln is the key analysis step.'
+  },
+  {
+    id: 7, category: 'C', tag: 'C — Waves',
+    title: 'Speed of Sound — Resonance Tube',
+    rq: "How does frequency of a tuning fork affect the resonant length of a closed air column?",
+    difficulty: 'medium',
+    ibtopic: 'Waves (C.2)',
+    iv: 'Frequency f (Hz) — 256, 320, 384, 440, 512 Hz (tuning forks)',
+    dv: 'First resonant length L (m)',
+    cv: ['Diameter of tube', 'Temperature', 'Same tube'],
+    equipment: ['Resonance tube (with water column)', 'Set of tuning forks', 'Ruler (±0.1 cm)', 'Thermometer'],
+    graph: 'Plot L vs. 1/f → straight line; gradient = v/4 → find speed of sound v',
+    tip: 'Measure end correction by finding the y-intercept (should equal ~0.6×radius of tube).'
+  },
+  {
+    id: 8, category: 'C', tag: 'C — Waves',
+    title: "Young's Double Slit — Wavelength of Light",
+    rq: "How does the slit separation in a double-slit experiment affect the fringe spacing?",
+    difficulty: 'hard',
+    ibtopic: 'Wave Optics (C.3)',
+    iv: 'Slit separation d (mm) — 0.25, 0.5, 0.75, 1.0 mm',
+    dv: 'Fringe spacing Δy (mm) — measured on screen',
+    cv: ['Wavelength (same laser)', 'Distance to screen D', 'Orientation'],
+    equipment: ['Laser (≥1 mW, 650 nm)', 'Double-slit slides', 'Screen', 'Ruler / vernier', 'Safety goggles'],
+    graph: 'Plot Δy vs. 1/d → straight line; gradient = λD → find wavelength λ',
+    tip: 'Measure across 10 fringes and divide for accuracy. LASER SAFETY: never look directly into beam.'
+  },
+  {
+    id: 9, category: 'C', tag: 'C — Waves',
+    title: 'Refractive Index — Snell\'s Law',
+    rq: "How does the angle of incidence affect the angle of refraction for glass?",
+    difficulty: 'easy',
+    ibtopic: 'Optics (C.1)',
+    iv: 'Angle of incidence θ₁ — 10° to 70° in 10° steps',
+    dv: 'Angle of refraction θ₂ (degrees)',
+    cv: ['Type of glass (same block)', 'Colour of light', 'Temperature'],
+    equipment: ['Ray box', 'Glass block', 'Protractor (±1°)', 'White paper', 'Pencil'],
+    graph: 'Plot sin θ₁ vs. sin θ₂ → straight line through origin; gradient = n (refractive index)',
+    tip: "Use a semi-circular glass block so the refracted ray doesn't refract at the curved surface."
+  },
+  {
+    id: 10, category: 'D', tag: 'D — Fields',
+    title: 'Magnetic Field vs. Distance',
+    rq: "How does distance from a straight current-carrying wire affect the magnetic field strength?",
+    difficulty: 'hard',
+    ibtopic: 'Magnetism (D.3)',
+    iv: 'Distance r (cm) — 1 to 10 cm',
+    dv: 'Magnetic field B (mT) — measured with Hall probe',
+    cv: ['Current in wire', 'Orientation of probe', 'External fields'],
+    equipment: ['Long straight wire', 'DC power supply', 'Ammeter', 'Hall probe + datalogger', 'Ruler'],
+    graph: 'Plot B vs. 1/r → expect linear relationship (B = μ₀I/2πr)',
+    tip: 'Shield setup from external magnetic fields (e.g. Earth\'s field). Keep current below 5 A.'
+  },
+  {
+    id: 11, category: 'D', tag: 'D — Fields',
+    title: 'Capacitor Discharge',
+    rq: "How does resistance affect the time constant of a discharging capacitor?",
+    difficulty: 'medium',
+    ibtopic: 'Electric Fields (D.2)',
+    iv: 'Resistance R (kΩ) — 10, 22, 47, 100, 220 kΩ',
+    dv: 'Time constant τ (s) — time for voltage to drop to V₀/e',
+    cv: ['Capacitance (same capacitor)', 'Initial voltage', 'Temperature'],
+    equipment: ['Capacitor (470 μF)', 'Resistor set', 'DC power supply', 'Voltmeter / datalogger', 'Stopwatch'],
+    graph: 'Plot τ vs. R → straight line through origin; gradient = C → find capacitance',
+    tip: 'Use a datalogger for more accurate τ. Linearise V vs. t by plotting ln V vs. t.'
+  },
+  {
+    id: 12, category: 'E', tag: 'E — Quantum & Nuclear',
+    title: 'Inverse Square Law — Radiation',
+    rq: "How does distance from a gamma source affect the count rate detected?",
+    difficulty: 'hard',
+    ibtopic: 'Nuclear (E.3)',
+    iv: 'Distance d (cm) — 5 to 30 cm',
+    dv: 'Count rate (counts/min) — measured with Geiger-Müller tube',
+    cv: ['Source activity (same source)', 'Background radiation (subtracted)', 'Orientation'],
+    equipment: ['Sealed gamma source (Cs-137)', 'GM tube + counter', 'Ruler', 'Lead shielding'],
+    graph: 'Plot count rate vs. 1/d² → straight line verifies inverse square law',
+    tip: 'Subtract background count first! Measure background for 5 minutes before starting.'
+  },
+  {
+    id: 13, category: 'A', tag: 'A — Mechanics',
+    title: 'Viscosity — Stokes\' Law',
+    rq: "How does the radius of a ball bearing affect its terminal velocity in glycerol?",
+    difficulty: 'medium',
+    ibtopic: 'Fluid Mechanics (A.2)',
+    iv: 'Radius of ball bearing r (mm) — 1 to 5 mm',
+    dv: 'Terminal velocity v (cm/s) — timed over measured distance',
+    cv: ['Temperature of glycerol', 'Type of fluid', 'Vertical alignment'],
+    equipment: ['Tall measuring cylinder', 'Glycerol', 'Ball bearings (various sizes)', 'Ruler', 'Stopwatch', 'Micrometer'],
+    graph: 'Plot v vs. r² → straight line; gradient gives η (viscosity of glycerol)',
+    tip: 'Maintain constant fluid temperature — viscosity is very sensitive to temperature changes.'
+  },
+  {
+    id: 14, category: 'B', tag: 'B — Matter',
+    title: "Boyle's Law — Pressure & Volume",
+    rq: "How does the volume of a fixed mass of gas affect its pressure at constant temperature?",
+    difficulty: 'easy',
+    ibtopic: 'Ideal Gas (B.3)',
+    iv: 'Volume V (cm³) — use graduated syringe',
+    dv: 'Pressure P (kPa) — pressure sensor',
+    cv: ['Temperature (room)', 'Amount of gas (sealed syringe)', 'Rate of compression'],
+    equipment: ['Large syringe (60 mL)', 'Pressure sensor / datalogger', 'Stoppers', 'Clamp'],
+    graph: 'Plot P vs. 1/V → straight line through origin verifies PV = const',
+    tip: 'Wait 30 s after each compression before reading — gas must reach thermal equilibrium.'
+  },
+];
+
+const criteria = [
+  {
+    code: 'RD',
+    name: 'Research Design',
+    color: '#0098a0',
+    maxMarks: 6,
+    weight: 25,
+    desc: 'Assesses how effectively you communicate the methodology (purpose and practice) used to address the research question — including the RQ in context, methodological considerations, and a reproducible procedure.',
+    bands: {
+      0: 'The report does not reach the standard described by the descriptors below.',
+      '1–2': '• The research question is stated without context.\n• Methodological considerations associated with collecting data relevant to the RQ are stated.\n• The description of the methodology lacks the detail to allow for the investigation to be reproduced.',
+      '3–4': '• The research question is outlined within a broad context.\n• Methodological considerations associated with collecting relevant and sufficient data are described.\n• The methodology allows for reproduction with few ambiguities or omissions.',
+      '5–6': '• The research question is described within a specific and appropriate context.\n• Methodological considerations are explained.\n• The methodology allows for the investigation to be reproduced.'
+    },
+    clarification: 'A RQ with context should reference the dependent and independent variables, include a concise description of the system, and include background theory of direct relevance. Methodological considerations include: method of measuring variables, scope/range/interval of IV, repetition, precision, control variables, and safety/ethical/environmental issues.',
+    checklist: [
+      'RQ names both the independent and dependent variables explicitly',
+      'RQ is embedded in a specific, relevant physical context (not just "I want to study pendulums")',
+      'Background theory directly relevant to the RQ is explained',
+      'Method of measuring the IV is clearly stated',
+      'Method of measuring the DV is clearly stated',
+      'Range, interval, and repetition of IV measurements are justified',
+      'Control variables are identified with method of control explained',
+      'Safety, ethical, or environmental considerations are addressed',
+      'Procedure is detailed enough for another student to reproduce the experiment'
+    ]
+  },
+  {
+    code: 'DA',
+    name: 'Data Analysis',
+    color: '#2563eb',
+    weight: 25,
+    maxMarks: 6,
+    desc: 'Assesses whether you have recorded, processed, and presented your data in ways that are relevant to the research question — including clear/precise communication, consideration of uncertainties, and appropriate processing.',
+    bands: {
+      0: 'The report does not reach the standard described by the descriptors below.',
+      '1–2': '• Recording and processing of data is communicated but is neither clear nor precise.\n• Shows limited evidence of consideration of uncertainties.\n• Some processing relevant to the RQ is carried out but with major omissions, inaccuracies or inconsistencies.',
+      '3–4': '• Communication of recording and processing is either clear or precise (not both).\n• Shows evidence of consideration of uncertainties but with some significant omissions or inaccuracies.\n• Processing relevant to the RQ is carried out but with some significant omissions, inaccuracies or inconsistencies.',
+      '5–6': '• Communication of recording and processing is both clear and precise.\n• Shows evidence of an appropriate consideration of uncertainties.\n• Processing relevant to the RQ is carried out appropriately and accurately.'
+    },
+    clarification: 'Clear = method of processing can be understood easily. Precise = conventions followed correctly (graph annotation, units, decimal places, significant figures). Major omissions impede drawing a valid conclusion; significant omissions allow a conclusion but with limited validity.',
+    checklist: [
+      'Raw data table has descriptive headings, correct units, and recorded uncertainties',
+      'Significant figures are used consistently and correctly',
+      'Data is processed (means calculated, derived quantities computed)',
+      'Uncertainties are propagated through all calculations',
+      'Graph axes are correctly labelled with quantity and unit',
+      'Error bars are drawn on the graph from propagated uncertainties',
+      'A best-fit line is drawn and its gradient calculated with units',
+      'Max and min gradient lines drawn to find gradient uncertainty',
+      'The graph result is interpreted physically (e.g. gradient linked to a constant)',
+      'All processing is accurate with no significant arithmetic errors'
+    ]
+  },
+  {
+    code: 'Con',
+    name: 'Conclusion',
+    color: '#16a34a',
+    weight: 25,
+    maxMarks: 6,
+    desc: 'Assesses whether you successfully answer the research question with regard to your analysis and the accepted scientific context — including interpretation of data with uncertainties and comparison to literature.',
+    bands: {
+      0: 'The report does not reach the standard described by the descriptors below.',
+      '1–2': '• A conclusion is stated that is relevant to the RQ but is not supported by the analysis presented.\n• The conclusion makes superficial comparison to the accepted scientific context.',
+      '3–4': '• A conclusion is described that is relevant to the RQ but is not fully consistent with the analysis presented.\n• A conclusion is described that makes some relevant comparison to the accepted scientific context.',
+      '5–6': '• A conclusion is justified that is relevant to the RQ and fully consistent with the analysis presented.\n• A conclusion is justified through relevant comparison to the accepted scientific context.'
+    },
+    clarification: 'A fully consistent conclusion requires interpretation of processed data including associated uncertainties. Scientific context refers to published material, published values, course notes, or textbooks. Citations must be sufficiently detailed to be traceable.',
+    checklist: [
+      'Conclusion directly and explicitly answers the research question',
+      'Conclusion is supported by specific numerical evidence from the analysis',
+      'The result is quoted with its full uncertainty (e.g. g = 9.6 ± 0.3 m s⁻²)',
+      'Uncertainties from the analysis are interpreted in the conclusion',
+      'A literature/theoretical value is cited from a traceable source',
+      'A percentage discrepancy between experimental and literature values is calculated',
+      'The conclusion discusses whether the result is consistent with accepted science',
+      'The citation is specific enough to be traced (author, year, URL, or textbook page)'
+    ]
+  },
+  {
+    code: 'Ev',
+    name: 'Evaluation',
+    color: '#dc2626',
+    weight: 25,
+    maxMarks: 6,
+    desc: 'Assesses whether you evaluate the investigation methodology and suggest realistic, relevant improvements — focusing on specific weaknesses and their relative impact.',
+    bands: {
+      0: 'The report does not reach the standard described by the descriptors below.',
+      '1–2': '• The report states generic methodological weaknesses or limitations.\n• Realistic improvements to the investigation are stated.',
+      '3–4': '• The report describes specific methodological weaknesses or limitations.\n• Realistic improvements that are relevant to the identified weaknesses are described.',
+      '5–6': '• The report explains the relative impact of specific methodological weaknesses or limitations.\n• Realistic improvements relevant to the identified weaknesses are explained.'
+    },
+    clarification: 'Generic = general to many methodologies, not specific to yours (e.g. "do more repeats" is generic). Methodological refers to the overall approach AND procedural steps. Weaknesses can relate to control of variables, precision of measurement, or variation in data.',
+    checklist: [
+      'At least 2 specific (not generic) methodological weaknesses are identified',
+      'Each weakness is specific to THIS investigation, not just "any" experiment',
+      'The relative impact of each weakness on the result is explained',
+      'Improvements are realistic and directly linked to each identified weakness',
+      'Improvements are explained — not just listed — with reasoning',
+      'Weaknesses go beyond just "do more repeats" or "use better equipment"',
+      'Control-of-variable issues are discussed where relevant',
+      'Measurement precision limitations are discussed with their effect on uncertainty'
+    ]
+  }
+];
+
+// ========================================================
+// STATE
+// ========================================================
+let selectedCategory = 'all';
+let selectedTopicId = null;
+let criteriaScores = { RD: null, DA: null, Con: null, Ev: null };
+let criteriaChecks = {};
+let stepCount = 5;
+
+// ========================================================
+// TAB SWITCHING
+// ========================================================
+function switchTab(name) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+  event.currentTarget.classList.add('active');
+}
+
+// ========================================================
+// TAB 1: TOPICS
+// ========================================================
+function getDiffLabel(d) {
+  const map = { easy: ['Easy', 'diff-easy'], medium: ['Medium', 'diff-medium'], hard: ['Challenging', 'diff-hard'] };
+  return map[d] || ['', ''];
+}
+
+function getCategoryColor(cat) {
+  const map = { A: '#f7614f', B: '#f7c94f', C: '#00d4aa', D: '#4f8ef7', E: '#b48ef7' };
+  return map[cat] || '#888';
+}
+
+function renderTopics() {
+  const grid = document.getElementById('topics-grid');
+  const search = document.getElementById('topic-search').value.toLowerCase();
+  const filtered = topics.filter(t => {
+    const catMatch = selectedCategory === 'all' || t.category === selectedCategory;
+    const searchMatch = !search || t.title.toLowerCase().includes(search) || t.rq.toLowerCase().includes(search) || t.ibtopic.toLowerCase().includes(search);
+    return catMatch && searchMatch;
+  });
+
+  grid.innerHTML = filtered.map(t => {
+    const [diffLabel, diffClass] = getDiffLabel(t.difficulty);
+    const color = getCategoryColor(t.category);
+    return `<div class="topic-card${selectedTopicId === t.id ? ' selected' : ''}" onclick="showTopicDetail(${t.id})">
+      <div class="topic-tag" style="background:${color}22;color:${color}">${t.tag}</div>
+      <div class="topic-title">${t.title}</div>
+      <div class="topic-rq">"${t.rq}"</div>
+      <div class="topic-meta">
+        <span class="meta-pill ${diffClass}">${diffLabel}</span>
+        <span class="meta-pill" style="background:rgba(0,0,0,0.05);color:var(--text-muted)">${t.ibtopic}</span>
+      </div>
+    </div>`;
+  }).join('');
+
+  if (filtered.length === 0) {
+    grid.innerHTML = '<div style="color:var(--text-muted);font-size:14px;padding:20px;grid-column:1/-1">No topics match your search. Try different keywords.</div>';
+  }
+}
+
+function filterCategory(cat, btn) {
+  selectedCategory = cat;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  selectedTopicId = null;
+  document.getElementById('topic-detail').classList.remove('open');
+  renderTopics();
+}
+
+function filterTopics() { renderTopics(); }
+
+function showTopicDetail(id) {
+  const t = topics.find(x => x.id === id);
+  if (!t) return;
+  selectedTopicId = id;
+  renderTopics();
+
+  const color = getCategoryColor(t.category);
+  const [diffLabel, diffClass] = getDiffLabel(t.difficulty);
+  const detail = document.getElementById('topic-detail');
+
+  detail.innerHTML = `
+    <div class="detail-header">
+      <div>
+        <div class="topic-tag" style="background:${color}22;color:${color};display:inline-block;margin-bottom:8px">${t.tag} · ${t.ibtopic}</div>
+        <div class="detail-title">${t.title}</div>
+      </div>
+      <button class="close-btn" onclick="closeDetail()">✕</button>
+    </div>
+
+    <div class="rq-box">
+      <div class="rq-label">Sample Research Question</div>
+      <div class="rq-text">"${t.rq}"</div>
+    </div>
+
+    <div class="detail-grid">
+      <div class="detail-box">
+        <div class="detail-box-title">Variables</div>
+        <ul>
+          <li><strong style="color:var(--accent)">IV:</strong> ${t.iv}</li>
+          <li><strong style="color:var(--accent2)">DV:</strong> ${t.dv}</li>
+          ${t.cv.map(c => `<li><strong style="color:var(--accent3)">CV:</strong> ${c}</li>`).join('')}
+        </ul>
+      </div>
+      <div class="detail-box">
+        <div class="detail-box-title">Equipment</div>
+        <ul>${t.equipment.map(e => `<li>${e}</li>`).join('')}</ul>
+      </div>
+      <div class="detail-box">
+        <div class="detail-box-title">Key Analysis (Graph)</div>
+        <ul><li>${t.graph}</li></ul>
+      </div>
+      <div class="detail-box">
+        <div class="detail-box-title">Examiner Tip</div>
+        <ul><li>${t.tip}</li></ul>
+      </div>
+    </div>
+  `;
+  detail.classList.add('open');
+  detail.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function closeDetail() {
+  selectedTopicId = null;
+  document.getElementById('topic-detail').classList.remove('open');
+  renderTopics();
+}
+
+// ========================================================
+// TAB 2: RQ BUILDER
+// ========================================================
+function buildRQ() {
+  const iv = document.getElementById('iv').value.trim();
+  const dv = document.getElementById('dv').value.trim();
+  const meas = document.getElementById('measurement').value.trim();
+  const cv1 = document.getElementById('cv1').value.trim();
+  const cv2 = document.getElementById('cv2').value.trim();
+  const cv3 = document.getElementById('cv3').value.trim();
+
+  const out = document.getElementById('rq-output');
+
+  if (!iv && !dv) {
+    out.innerHTML = '<span class="placeholder">Fill in the fields above to generate your research question…</span>';
+    updateFeedback(iv, dv, meas, [cv1, cv2, cv3]);
+    return;
+  }
+
+  let rq = '';
+  if (iv && dv) {
+    rq = `How does <strong style="color:var(--accent)">${iv}</strong> affect the <strong style="color:var(--accent2)">${dv}</strong>`;
+    if (meas) rq += `, measured by ${meas}`;
+    rq += '?';
+  } else if (iv) {
+    rq = `How does <strong style="color:var(--accent)">${iv}</strong> affect <span class="placeholder">[dependent variable]</span>?`;
+  } else {
+    rq = `How does <span class="placeholder">[independent variable]</span> affect the <strong style="color:var(--accent2)">${dv}</strong>?`;
+  }
+  out.innerHTML = rq;
+  updateFeedback(iv, dv, meas, [cv1, cv2, cv3]);
+}
+
+function updateFeedback(iv, dv, meas, cvs) {
+  const fb = document.getElementById('rq-feedback');
+  const items = [];
+
+  if (!iv) items.push({ type: 'error', msg: 'Independent variable is missing.' });
+  else items.push({ type: 'ok', msg: 'Independent variable defined ✓' });
+
+  if (!dv) items.push({ type: 'error', msg: 'Dependent variable is missing.' });
+  else items.push({ type: 'ok', msg: 'Dependent variable defined ✓' });
+
+  if (!meas) items.push({ type: 'warn', msg: 'How will you measure the DV? Add measurement method for a stronger RQ.' });
+  else items.push({ type: 'ok', msg: 'Measurement method specified ✓' });
+
+  const filledCVs = cvs.filter(c => c);
+  if (filledCVs.length === 0) items.push({ type: 'warn', msg: 'No controlled variables listed — IB examiners expect at least 2–3.' });
+  else if (filledCVs.length === 1) items.push({ type: 'warn', msg: `Only 1 controlled variable listed. Try to identify at least 2 more.` });
+  else items.push({ type: 'ok', msg: `${filledCVs.length} controlled variable(s) listed ✓` });
+
+  if (iv && iv.length > 0 && !iv.match(/\(.*\)/)) items.push({ type: 'warn', msg: 'Consider adding units to your independent variable, e.g. length (m).' });
+  if (dv && dv.length > 0 && !dv.match(/\(.*\)/)) items.push({ type: 'warn', msg: 'Consider adding units to your dependent variable.' });
+
+  fb.innerHTML = items.map(i => {
+    const cls = i.type === 'ok' ? 'feedback-ok' : i.type === 'warn' ? 'feedback-warn' : 'feedback-error';
+    const icon = i.type === 'ok' ? '✅' : i.type === 'warn' ? '⚠️' : '❌';
+    return `<div class="feedback-item ${cls}">${icon} ${i.msg}</div>`;
+  }).join('');
+}
+
+// ========================================================
+// TAB 3: PLANNER
+// ========================================================
+function addStep() {
+  stepCount++;
+  const list = document.getElementById('steps-list');
+  const div = document.createElement('div');
+  div.className = 'step-item';
+  div.innerHTML = `<div class="step-num">${stepCount}</div><div style="flex:1"><input type="text" id="step${stepCount}" placeholder="Describe step ${stepCount}..."></div>`;
+  list.appendChild(div);
+}
+
+// ========================================================
+// TAB 4: ANALYSIS
+// ========================================================
+function switchAnalysis(name, btn) {
+  document.querySelectorAll('.analysis-content').forEach(a => a.classList.remove('active'));
+  document.querySelectorAll('.analysis-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('analysis-' + name).classList.add('active');
+  btn.classList.add('active');
+}
+
+// ========================================================
+// TAB 5: CRITERIA
+// ========================================================
+function renderCriteria() {
+  const acc = document.getElementById('criteria-accordion');
+  acc.innerHTML = criteria.map(c => {
+    const score = criteriaScores[c.code];
+    const scoreDisplay = score !== null ? score : '—';
+    const checks = criteriaChecks[c.code] || {};
+
+    const scoreBtns = Array.from({length: c.maxMarks + 1}, (_, i) => i)
+      .map(i => `<button class="score-btn${score === i ? ' selected' : ''}" onclick="setScore('${c.code}', ${i})">${i}</button>`)
+      .join('');
+
+    // Find matching band: check exact key first, then ranges
+    let activeBand = null;
+    if (score !== null) {
+      if (c.bands[score] !== undefined) {
+        activeBand = c.bands[score];
+      } else {
+        for (const key of Object.keys(c.bands)) {
+          if (key.includes('–')) {
+            const [lo, hi] = key.split('–').map(Number);
+            if (score >= lo && score <= hi) { activeBand = c.bands[key]; break; }
+          }
+        }
+      }
+    }
+
+    const bandDesc = activeBand
+      ? `<div class="band-desc show" style="white-space:pre-line">${activeBand}</div>`
+      : '';
+
+    // All band rows
+    const bandRows = Object.entries(c.bands).map(([k, v]) => {
+      const isActive = activeBand === v;
+      return `<tr style="${isActive ? 'background:rgba(0,0,0,0.04);font-weight:600' : ''}">
+        <td style="padding:7px 12px;border-bottom:1px solid var(--border);font-family:'Syne',sans-serif;font-weight:700;color:${c.color};white-space:nowrap;vertical-align:top">${k}</td>
+        <td style="padding:7px 12px;border-bottom:1px solid var(--border);font-size:12px;color:var(--text-muted);line-height:1.5;white-space:pre-line">${v}</td>
+      </tr>`;
+    }).join('');
+
+    const checkItems = c.checklist.map((item, idx) => {
+      const checked = checks[idx] || false;
+      return `<div class="check-item${checked ? ' checked' : ''}" onclick="toggleCheck('${c.code}', ${idx})">
+        <div class="check-box">${checked ? '✓' : ''}</div>
+        <div class="check-text">${item}</div>
+      </div>`;
+    }).join('');
+
+    return `<div class="criterion" id="crit-${c.code}">
+      <div class="criterion-header" onclick="toggleCriterion('${c.code}')">
+        <div class="criterion-left">
+          <div class="criterion-code" style="color:${c.color};font-size:14px">${c.code}</div>
+          <div>
+            <div class="criterion-name">${c.name}</div>
+            <div class="criterion-marks">Max ${c.maxMarks} marks · ${c.weight}%</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div class="criterion-score">
+            <div class="score-display" style="color:${c.color}">${scoreDisplay}</div>
+          </div>
+          <div class="criterion-chevron">▼</div>
+        </div>
+      </div>
+      <div class="criterion-body">
+        <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px;line-height:1.7">${c.desc}</p>
+
+        <div class="detail-box-title" style="margin-bottom:8px">Official IB Band Descriptors</div>
+        <div style="border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:16px">
+          <table style="width:100%;border-collapse:collapse">
+            ${bandRows}
+          </table>
+        </div>
+
+        <div class="detail-box-title" style="margin-bottom:8px">IB Clarification</div>
+        <div style="background:rgba(0,152,160,0.05);border:1px solid rgba(0,152,160,0.2);border-radius:8px;padding:12px 16px;font-size:12px;color:var(--text-muted);line-height:1.7;margin-bottom:16px">${c.clarification}</div>
+
+        <div class="detail-box-title" style="margin-bottom:8px">Select your score (0–${c.maxMarks}):</div>
+        <div class="score-selector" style="margin-bottom:6px">${scoreBtns}</div>
+        ${score !== null ? `<div style="font-size:12px;color:var(--text-muted);margin-bottom:14px">Score ${score} — band highlighted in table above</div>` : ''}
+
+        <div class="detail-box-title" style="margin:16px 0 10px">Self-check requirements:</div>
+        <div class="checklist">${checkItems}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleCriterion(code) {
+  const el = document.getElementById('crit-' + code);
+  el.classList.toggle('open');
+}
+
+function setScore(code, val) {
+  criteriaScores[code] = val;
+  renderCriteria();
+  updateTotalScore();
+}
+
+function toggleCheck(code, idx) {
+  if (!criteriaChecks[code]) criteriaChecks[code] = {};
+  criteriaChecks[code][idx] = !criteriaChecks[code][idx];
+  const crit = document.getElementById('crit-' + code);
+  if (crit) {
+    const items = crit.querySelectorAll('.check-item');
+    if (items[idx]) {
+      const checked = criteriaChecks[code][idx];
+      items[idx].classList.toggle('checked', checked);
+      items[idx].querySelector('.check-box').textContent = checked ? '✓' : '';
+    }
+  }
+}
+
+function updateTotalScore() {
+  const total = Object.values(criteriaScores).reduce((s, v) => s + (v !== null ? v : 0), 0);
+  const pct = Math.round((total / 24) * 100);
+
+  document.getElementById('total-score').textContent = total;
+  document.getElementById('grade-fill').style.width = pct + '%';
+  document.getElementById('score-circle').style.setProperty('--pct', pct + '%');
+
+  let grade, desc;
+  if (total >= 21) { grade = 'Grade 7'; desc = 'Outstanding work — submit with confidence!'; }
+  else if (total >= 18) { grade = 'Grade 6'; desc = 'Very good — refine a few areas for a 7.'; }
+  else if (total >= 15) { grade = 'Grade 5'; desc = 'Good — focus on Analysis and Evaluation.'; }
+  else if (total >= 12) { grade = 'Grade 4'; desc = 'Satisfactory — significant improvements needed.'; }
+  else if (total >= 9)  { grade = 'Grade 3'; desc = 'Below expectations — revisit method and analysis.'; }
+  else if (total >= 5)  { grade = 'Grade 2'; desc = 'Needs major revision across all criteria.'; }
+  else { grade = '—'; desc = 'Select scores below to see your predicted grade'; }
+
+  document.getElementById('grade-label').textContent = grade;
+  document.getElementById('grade-desc').textContent = desc;
+}
+
+// ========================================================
+// INIT
+// ========================================================
+renderTopics();
+renderCriteria();
+</script>
+</body>
+</html>
